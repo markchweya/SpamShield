@@ -1,8 +1,15 @@
 ﻿from sqlmodel import SQLModel, Field, Index
-from typing import Optional, Literal
+from typing import Optional
 from datetime import datetime
+from enum import Enum
 
-Action = Literal["none", "report", "block", "safe"]
+
+class Action(str, Enum):
+    none = "none"
+    report = "report"
+    block = "block"
+    safe = "safe"
+
 
 class Event(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -14,11 +21,12 @@ class Event(SQLModel, table=True):
     ts: datetime = Field(index=True)
     is_in_contacts: bool = Field(default=False)
 
-    action: Action = Field(default="none")
+    action: Action = Field(default=Action.none, index=True)
 
     __table_args__ = (
         Index("idx_sender_ts", "sender_hash", "ts"),
     )
+
 
 class Pepper(SQLModel, table=True):
     pepper_id: str = Field(primary_key=True, min_length=4, max_length=32)
